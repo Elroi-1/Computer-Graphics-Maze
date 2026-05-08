@@ -30,7 +30,7 @@ END   = (3 * ROWS // 4, 3 * COLS // 4)
 
 # colors
 BG_COLOR      = (0.05, 0.05, 0.10)
-WALL_COLOR    = (0.20, 0.45, 0.90)
+WALL_COLOR    = (0.95, 0.95, 0.85)  # bright warm white
 START_COLOR   = (0.10, 0.90, 0.30)
 END_COLOR     = (0.90, 0.20, 0.20)
 VISITED_COLOR = (0.15, 0.15, 0.30)  # visited path
