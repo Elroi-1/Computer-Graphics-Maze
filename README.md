@@ -1,64 +1,48 @@
 # Computer Graphics – Maze Generator
 
-An interactive maze generator rendered with **PyOpenGL / GLUT**.  
-A new random maze is produced every run using an iterative **stack-based Depth-First Search** – sometimes called the *"mouse in a maze"* algorithm.
+**Name:** Elroi Tesfaye  
+**ID:** UGR/1293/16  
+**Section:** 1
 
 ---
 
-## How It Works
+## description
 
-### Algorithm – Stack-based DFS ("Mouse" Logic)
-
-1. **Start** – the "mouse" is placed at cell `(0, 0)` and pushed onto a stack; that cell is marked visited.
-2. **Explore** – at each step the mouse peeks at the top of the stack and randomly picks one of its unvisited cardinal neighbours (N / S / E / W).
-3. **Carve** – the wall shared between the current cell and the chosen neighbour is removed (set to `False` in the wall array).
-4. **Move** – the neighbour is marked visited and pushed onto the stack.
-5. **Backtrack** – when no unvisited neighbours exist the mouse *backtracks* by popping from the stack.
-6. **Done** – the algorithm ends when the stack is empty, meaning every cell has been visited and the result is a **perfect maze** (exactly one path between any two cells).
-
-Because backtracking is handled by a Python `list` used as a stack, the implementation is fully iterative and avoids Python's recursion limit.
+An interactive maze rendered with **PyOpenGL / GLUT**. A new random maze is generated every run using a stack-based depth-first search. After generation, an animated "mouse" solves the maze in real time using the same DFS logic with visual backtracking.
 
 ---
 
-## Data Structure
+## how it works
 
-Two 2-D boolean arrays represent every interior wall exactly **once**:
+### maze generation – stack-based DFS
+
+1. The mouse starts at `(0, 0)`, marks it visited, and pushes it onto a stack.
+2. It picks a random unvisited neighbor, removes the shared wall, and moves there.
+3. When no unvisited neighbors exist, it backtracks by popping the stack.
+4. Repeats until every cell is visited → a perfect maze.
+
+After generation, ~1 in 20 extra walls are randomly removed to create **cycles**. This defeats the classic shoulder-to-wall traversal trick. The start and end cells are also placed in the **interior** of the maze (not on the boundary), making the shoulder-to-wall method fail entirely.
+
+### animated solver
+
+- 🔴 **Red dot** – current mouse position
+- 🔵 **Blue cells** – dead ends (mouse backtracked)
+- Dim cells – path the mouse has visited
+- 🟡 **Gold dot** – maze solved
+
+### data structures
 
 ```
-northWall[row][col]   True  ⟹  the NORTH (top) wall of cell (row, col) is solid
-eastWall [row][col]   True  ⟹  the EAST (right) wall of cell (row, col) is solid
+northWall[r][c]  True → top edge of cell (r, c) is a wall
+eastWall[r][c]   True → right edge of cell (r, c) is a wall
 ```
 
-Shared-wall equivalences (no duplication):
-
-| Wall of cell (r, c) | Same physical wall as … |
-|---------------------|------------------------|
-| South wall          | `northWall[r+1][c]` |
-| West wall           | `eastWall[r][c-1]` |
-
-The outer boundary walls are **never stored** in these arrays; they are always drawn separately.
+South wall of `(r,c)` = `northWall[r+1][c]`  
+West wall of `(r,c)` = `eastWall[r][c-1]`
 
 ---
 
-## Project Structure
-
-```
-Computer-Graphics-Maze/
-│
-└── main.py     # Maze generation (DFS) + OpenGL rendering
-```
-
----
-
-## Requirements
-
-| Package | Purpose |
-|---------|---------|
-| Python ≥ 3.8 | Runtime |
-| PyOpenGL | OpenGL bindings |
-| PyOpenGL_accelerate *(optional)* | Faster rendering |
-
-Install dependencies:
+## requirements
 
 ```bash
 pip install PyOpenGL PyOpenGL_accelerate
@@ -66,42 +50,24 @@ pip install PyOpenGL PyOpenGL_accelerate
 
 ---
 
-## Running
+## run
 
 ```bash
 python main.py
 ```
 
-### Controls
-
-| Key | Action |
+| key | action |
 |-----|--------|
-| `R` | Generate a new random maze |
-| `Q` or `ESC` | Quit |
+| `R` | generate a new maze |
+| `Q` / `ESC` | quit |
 
 ---
 
-## Configuration
+## configuration (top of `main.py`)
 
-At the top of `main.py` you can adjust:
-
-| Variable | Default | Description |
+| variable | default | description |
 |----------|---------|-------------|
-| `ROWS` | 15 | Number of maze rows |
-| `COLS` | 20 | Number of maze columns |
-| `SEED` | `None` | Fixed integer → reproducible maze |
-| `WINDOW_W` | 800 | Window width (px) |
-| `WINDOW_H` | 600 | Window height (px) |
-
----
-
-## Visual Layout
-
-- 🟢 **Green cell** – start `(0, 0)`  
-- 🔴 **Red cell** – end `(ROWS-1, COLS-1)`  
-- 🔵 **Blue lines** – maze walls  
-- ⬛ **Dark background**
-
----
-
-*Assignment: Computer Graphics – Maze Generator*  
+| `ROWS` | 15 | maze rows |
+| `COLS` | 20 | maze columns |
+| `SEED` | `None` | fixed integer → repeatable maze |
+| `STEP_MS` | 40 | animation speed in ms (lower = faster) |
